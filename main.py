@@ -102,6 +102,7 @@ class Sudoku:
         # return self.show_board()
 
     def lenght(self):
+        """solve if only 1 number can go into box"""
         numbers = set([1, 2, 3, 4, 5, 6, 7, 8, 9])
         change = False
         for i in self.coords:
@@ -113,6 +114,7 @@ class Sudoku:
         return change
 
     def box(self):
+        """up box's value by checking other box's"""
         a = self.coords.items()
         # sorts list by box coors so 0-8 is first box
         b = sorted(a, key=lambda x: x[1][1])
