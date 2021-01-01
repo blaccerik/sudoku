@@ -9,8 +9,8 @@ class Sudoku:
 
     def make_board(self, file):
         a = file.split("\n")
-        a.remove("")
-        a.remove("")
+        a.pop(0)
+        a.pop(-1)
         board = {}
         for i in range(len(a)):
             board[i] = a[i]
@@ -125,8 +125,18 @@ class Sudoku:
                     continue
                 else:
                     change = self.multi()
-                    some = self.lenght()
-                    number = some[1]
+                    if change:
+                        some = self.lenght()
+                        number = some[1]
+                        continue
+                    else:
+                        change = self.line()
+                        # print(change)
+                        if change:
+                            some = self.lenght()
+                            number = some[1]
+                            continue
+
 
     def lenght(self):
         """solve if only 1 number can go into box"""
@@ -220,7 +230,7 @@ class Sudoku:
                     rows.append((coords,j))
             for j in rows:
                 for k in rows:
-                    # print(j)
+                    # detect the number pair in a 3x3 area
                     if k[0] == j[0] and k[1] != j[1]:
                         lista = list(j[0])
                         one = lista[0]
@@ -235,37 +245,76 @@ class Sudoku:
                             for l in some_numbers:
                                 coord = one[0] + str(l)
                                 if type(self.coords[coord][0]) == set:
+                                    # print(self.coords[coord])
                                     self.coords[coord][0].add(k[1])
                                     self.coords[coord][0].add(j[1])
                                     change = True
-        return False
+        return change
+
+    def line(self):
+        # käib rea läbi
+        # vaatab mis on ja mis pole ning siis vaatab mis nr on mis 3x3 alas
+        a = self.coords.items()
+        # h is horisontal and v is vertical
+        h = sorted(a, key=lambda x: x[0][0])
+        v = sorted(a, key=lambda x: x[0][1])
+        ways = [h, v]
+        change = False
+        for x in ways:
+            for i in range(0, len(x), 9):
+                n = 0
+                numbers = set()
+                all_numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9}
+                while n < 9:
+                    if type(x[i + n][1][0]) == int:
+                        numbers.add(x[i + n][1][0])
+                    n += 1
+                sets = []
+                n = 0
+                while n < 9:
+                    if type(x[i + n][1][0]) == set:
+                        sets.append((x[i + n][1][0], x[i + n][0]))
+                    n += 1
+                # print(sets)
+                remain = list(all_numbers - numbers)
+                for j in remain:
+                    # print(j)
+                    count = []
+                    for k in sets:
+                        if j not in k[0]:
+                            count.append(k[1])
+                    if len(count) == 1:
+                        coord = count[0]
+                        self.coords[coord] = all_numbers - {j}, self.coords[coord][1]
+                        change = True
+        return change
 
 
 
 
 if __name__ == '__main__':
     file = """
-1   7  3 
-83 6     
+1   7  3
+83 6
   29  6 8
 6    49 7
- 9     5 
+ 9     5
 3 75    4
-2 3  91  
-     2 43
+2 3  91
+   7 2 43
  4  8   9
 """
 
 #     file = """
-# 53  7
-# 6  195
-#  98    6
-# 8   6   3
-# 4  8 3  1
-# 7   2   6
-#  6    28
-#    419  5
-#     8  79
+# 12345 7
+# 2     6
+# 3
+# 4
+# 5
+# 6
+# 7
+# 8
+# 9
 # """
 
     s = Sudoku(file)
